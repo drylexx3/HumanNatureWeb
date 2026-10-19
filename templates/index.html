@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>desktop — humannature v3.6.0 analog</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Centered Desktop Window Container -->
+  <div class="window-wrapper">
+    <div class="desktop-window" id="desktopWindow">
+      
+      <!-- Top Titlebar: Identical to native Tkinter window -->
+      <div class="window-titlebar">
+        <div class="titlebar-controls">
+          <span class="dot dot-close" title="Close"></span>
+          <span class="dot dot-minimize" title="Minimize"></span>
+          <span class="dot dot-maximize" title="Maximize"></span>
+        </div>
+        <div class="titlebar-title">desktop — humannature v3.6.0 analog</div>
+        <div class="titlebar-right">
+          <span class="pin-icon" title="Always on Top">↗</span>
+          <span class="titlebar-clock" id="liveClock">04:38 PM</span>
+        </div>
+      </div>
+
+      <!-- Main Window Body -->
+      <div class="window-body">
+        
+        <!-- LEFT PANEL (Width 460px) -->
+        <div class="left-panel">
+          <!-- Title Row -->
+          <div class="title-row">
+            <h1 class="app-main-title">HumanNature v3.6.0</h1>
+            <span class="ai-badge">● AI HUMANIZER</span>
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="presets-header">
+            <span>QUICK PRESETS</span>
+          </div>
+          <div class="presets-bar" id="presetsBar">
+            <button class="preset-btn" data-preset="formal">Formal</button>
+            <button class="preset-btn" data-preset="casual">Casual</button>
+            <button class="preset-btn active" data-preset="espanol">Español</button>
+            <button class="preset-btn" data-preset="essay">Essay</button>
+            <button class="preset-btn" data-preset="coder">Coder</button>
+            <button class="preset-btn" data-preset="turbo">Turbo</button>
+            <button class="preset-btn" data-preset="stealth">Stealth</button>
+          </div>
+
+          <!-- Target Speed Slider -->
+          <div class="field-group">
+            <div class="field-label-row">
+              <span class="field-label">TARGET SPEED (WPM)</span>
+            </div>
+            <div class="slider-wrapper">
+              <input type="range" id="wpmSlider" min="30" max="150" value="72" class="analog-slider">
+            </div>
+          </div>
+
+          <!-- Accuracy Rate Slider -->
+          <div class="field-group">
+            <div class="field-label-row">
+              <span class="field-label">ACCURACY RATE (%)</span>
+              <span class="field-value-cyan" id="accValue">96.4%</span>
+            </div>
+            <div class="slider-wrapper">
+              <input type="range" id="accSlider" min="85.0" max="100.0" step="0.1" value="96.4" class="analog-slider" disabled>
+            </div>
+            <label class="analog-checkbox-label">
+              <input type="checkbox" id="autoAccCheck" checked>
+              <span class="custom-chk"></span>
+              Auto-adjust accuracy based on speed
+            </label>
+          </div>
+
+          <!-- Start Delay (Countdown) Slider -->
+          <div class="field-group">
+            <div class="field-label-row">
+              <span class="field-label">START DELAY (COUNTDOWN)</span>
+              <span class="field-value-cyan" id="delayValue">5s</span>
+            </div>
+            <div class="slider-wrapper">
+              <input type="range" id="delaySlider" min="0" max="10" value="5" class="analog-slider">
+            </div>
+          </div>
+
+          <!-- NLP Engine Dropdown -->
+          <div class="field-group">
+            <div class="field-label-row">
+              <span class="field-label">NLP ENGINE</span>
+            </div>
+            <div class="select-box-wrapper">
+              <select id="engineSelect" class="analog-select">
+                <option value="⚡ HumanizeAI Pro" selected>⚡ HumanizeAI Pro</option>
+                <option value="🎓 Academic Master">🎓 Academic Master</option>
+                <option value="👻 GhostWriter Ultra">👻 GhostWriter Ultra</option>
+                <option value="🌊 Natural Flow">🌊 Natural Flow</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Typing Options (Burst & Fragment Mode) -->
+          <div class="typing-options-row">
+            <label class="analog-checkbox-label">
+              <input type="checkbox" id="burstCheck" checked>
+              <span class="custom-chk"></span>
+              Cognitive Burst
+            </label>
+            <label class="analog-checkbox-label">
+              <input type="checkbox" id="fragmentsCheck" checked>
+              <span class="custom-chk"></span>
+              Fragment Mode
+            </label>
+          </div>
+
+          <!-- Direct Action Buttons Row 1: START, PAUSE, STOP -->
+          <div class="action-btn-row-1">
+            <button id="startBtn" class="btn-cyan-action">
+              <span>▶ START (F9)</span>
+            </button>
+            <button id="pauseBtn" class="btn-slate-action" disabled>
+              <span>⏸  PAUSE (F8)</span>
+            </button>
+            <button id="stopBtn" class="btn-rose-action" disabled>
+              <span>⏹ STOP (F10)</span>
+            </button>
+          </div>
+
+          <!-- Action Button Row 2: PEGAR / DETECTAR ESSAY -->
+          <button id="pasteEssayBtn" class="btn-paste-essay">
+            <span>📥  PEGAR / DETECTAR ESSAY (CLIPBOARD)</span>
+          </button>
+
+          <!-- Action Button Row 3: PLAYGROUND & SETTINGS -->
+          <div class="action-btn-row-3">
+            <button id="playgroundBtn" class="btn-secondary-action">
+              <span>🧪  PLAYGROUND</span>
+            </button>
+            <button id="settingsBtn" class="btn-secondary-action">
+              <span>⚙  SETTINGS</span>
+            </button>
+          </div>
+
+          <!-- Terminal Output Box -->
+          <div class="analog-terminal" id="terminalOutput">
+            <div class="terminal-line">&gt; [System] HumanNature v3.6.0 analog initialized.</div>
+            <div class="terminal-line">&gt; [Essay] 📄 Ensayo restaurado de sesión: 212 palabras (1263 caracteres).</div>
+            <div class="terminal-line">&gt; [Essay] Presiona ▶ START (F9) para escribirlo, o 🧪 PLAYGROUND para inspeccionarlo.</div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+          <!-- Top Speed Meter -->
+          <div class="speed-meter-container">
+            <div class="speed-huge-val" id="wpmHugeDisplay">72</div>
+            <div class="speed-sub-label">
+              <span>WPM</span>
+              <span>MEASURED</span>
+            </div>
+          </div>
+
+          <!-- Main Status Label -->
+          <div class="main-status-label ready" id="statusLabel">● Ensayo listo: 212 palabras</div>
+
+          <!-- Latency Graph Title & Canvas -->
+          <div class="chart-section">
+            <div class="chart-title">TIME BETWEEN KEYS • LAST 65</div>
+            <div class="canvas-frame">
+              <canvas id="analogCanvas" width="410" height="80"></canvas>
+            </div>
+          </div>
+
+          <!-- Stat Rows (Last Key, Keystrokes, Typos Fixed) -->
+          <div class="stat-rows-container">
+            <div class="stat-strip">
+              <span class="stat-name">LAST KEY</span>
+              <span class="stat-value" id="valLastKey">0</span>
+            </div>
+            <div class="stat-strip">
+              <span class="stat-name">KEYSTROKES</span>
+              <span class="stat-value" id="valKeystrokes">0</span>
+            </div>
+            <div class="stat-strip">
+              <span class="stat-name">TYPOS FIXED</span>
+              <span class="stat-value" id="valTypos">0</span>
+            </div>
+          </div>
+
+          <!-- Bottom Telemetry Label -->
+          <div class="telemetry-bottom-label" id="telemetryLabel">&gt; essay ready: 212 words restored</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PLAYGROUND MODAL: 🧪 TEXT PLAYGROUND & INSPECTOR
+       (1:1 Replica of Desktop open_playground)
+  ============================================================ -->
+  <div class="modal-backdrop" id="playgroundModal">
+    <div class="modal-dialog pg-dialog-full">
+      
+      <!-- Top header -->
+      <div class="pg-header">
+        <div class="pg-title-box">
+          <h2 class="pg-title">🧪 TEXT PLAYGROUND & INSPECTOR</h2>
+          <p class="pg-subtitle">Live test text humanization (English / Spanish), inspect linguistic diffs, and preview typing metrics.</p>
+        </div>
+        <button class="pg-close-btn" id="closePlaygroundBtn">✕ CLOSE</button>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="pg-toolbar">
+        <div class="pg-toolbar-left">
+          <span class="pg-tb-label">ENGINE:</span>
+          <select id="pgEngineSelect" class="pg-select">
+            <option value="⚡ HumanizeAI Pro" selected>⚡ HumanizeAI Pro</option>
+            <option value="🎓 Academic Master">🎓 Academic Master</option>
+            <option value="👻 GhostWriter Ultra">👻 GhostWriter Ultra</option>
+            <option value="🌊 Natural Flow">🌊 Natural Flow</option>
+          </select>
+          <label class="analog-checkbox-label">
+            <input type="checkbox" id="pgCasualCheck">
+            <span class="custom-chk"></span>
+            Casual Mode
+          </label>
+          <button id="pgSampleEnBtn" class="pg-btn">✨ SAMPLE EN</button>
+          <button id="pgSampleEsBtn" class="pg-btn">🇪🇸 SAMPLE ES</button>
+          <button id="pgPasteBtn" class="pg-btn">📥 PASTE</button>
+          <button id="pgClearBtn" class="pg-btn pg-btn-muted">CLEAR</button>
+        </div>
+        
+        <div class="pg-toolbar-right">
+          <button id="pgCleanMarkdownBtn" class="pg-btn">🧹 CLEAN MARKDOWN</button>
+          <button id="pgRunBtn" class="pg-btn-primary">⚡ RUN HUMANIZER</button>
+          <button id="pgCopyBtn" class="pg-btn">📋 COPY</button>
+          <button id="pgUseAutotyperBtn" class="pg-btn-green">🚀 USE IN AUTOTYPER</button>
+        </div>
+      </div>
+
+      <!-- Split editor pane (50% / 50%) -->
+      <div class="pg-editors-container">
+        <!-- Left: Original -->
+        <div class="pg-editor-col">
+          <div class="pg-editor-label">ORIGINAL TEXT (INPUT)</div>
+          <textarea id="pgInputText" class="pg-editor-textarea" placeholder="Pega aquí tu ensayo generado por IA..."></textarea>
+        </div>
+
+        <!-- Right: Humanized Output (Preview) - Dark Theme Matching Original App -->
+        <div class="pg-editor-col">
+          <div class="pg-editor-label pg-label-cyan">HUMANIZED OUTPUT (PREVIEW)</div>
+          <textarea id="pgOutputText" class="pg-editor-textarea" placeholder="El texto humanizado aparecerá aquí tras presionar 'RUN HUMANIZER'..." readonly></textarea>
+        </div>
+      </div>
+
+      <!-- Bottom Analytics Dashboard (5 Metric Cards) -->
+      <div class="pg-analytics-dashboard">
+        <div class="pg-metric-card">
+          <span class="pg-metric-title">INPUT WORDS / CHARS</span>
+          <strong class="pg-metric-val" id="cardInWords">0 words • 0 chars</strong>
+        </div>
+        <div class="pg-metric-card">
+          <span class="pg-metric-title">OUTPUT WORDS / CHARS</span>
+          <strong class="pg-metric-val" id="cardOutWords">0 words • 0 chars</strong>
+        </div>
+        <div class="pg-metric-card">
+          <span class="pg-metric-title">WORDS CHANGED / DIFF</span>
+          <strong class="pg-metric-val" id="cardDiff">0 words modified</strong>
+        </div>
+        <div class="pg-metric-card">
+          <span class="pg-metric-title">DETECTED LANGUAGE</span>
+          <strong class="pg-metric-val" id="cardLang">—</strong>
+        </div>
+        <div class="pg-metric-card">
+          <span class="pg-metric-title">EST. TYPING DURATION</span>
+          <strong class="pg-metric-val" id="cardTiming">0m 00s @ 72 WPM</strong>
+        </div>
+      </div>
+
+      <!-- Extra: Bookmarklet Bar for universal typing in Google Docs / GPTZero -->
+      <div class="pg-bookmarklet-strip">
+        <span class="bm-strip-text">⚡ Auto-Typer Universal Bookmarklet:</span>
+        <a href="#" id="pgBookmarkletLink" class="bm-strip-pill">⚡ HumanNature AutoTyper</a>
+        <span class="bm-strip-hint">(Arrastra este botón a tu barra de marcadores para escribir directo en Google Docs / GPTZero)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SETTINGS MODAL: ⚙ SETTINGS
+  ============================================================ -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">⚙ SETTINGS & CONFIGURATION</h2>
+        <button class="modal-close-btn" id="closeSettingsBtn">✕ CLOSE</button>
+      </div>
+      <div class="settings-content">
+        <div class="setting-row">
+          <div>
+            <strong>Use Shift+Enter for newlines</strong>
+            <p>Emits Shift+Enter instead of standard Enter (useful for chat apps / docs).</p>
+          </div>
+          <label class="analog-checkbox-label">
+            <input type="checkbox" id="setShiftEnter">
+            <span class="custom-chk"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>🚫 Strip Markdown (*, **, `)</strong>
+            <p>Removes AI asterisks and markdown symbols before typing (prevents Google Docs markdown alerts).</p>
+          </div>
+          <label class="analog-checkbox-label">
+            <input type="checkbox" id="setStripMarkdown" checked>
+            <span class="custom-chk"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>🚫 Strip Emojis</strong>
+            <p>Filters out emojis before simulated typing.</p>
+          </div>
+          <label class="analog-checkbox-label">
+            <input type="checkbox" id="setStripEmojis">
+            <span class="custom-chk"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Audio feedback (Synthetic clicks)</strong>
+            <p>Subtle mechanical keyboard audio clicks during keystroke simulation.</p>
+          </div>
+          <label class="analog-checkbox-label">
+            <input type="checkbox" id="setAudioClicks">
+            <span class="custom-chk"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>External System Window Typing Bridge</strong>
+            <p>Allows typing into other native desktop windows via background pynput worker.</p>
+          </div>
+          <button id="setDesktopBridgeBtn" class="tb-btn tb-btn-secondary" style="font-size: 11px;">
+            💻 TYPE TO ACTIVE DESKTOP WINDOW
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js?v=3.6.4"></script>
+</body>
+</html>
