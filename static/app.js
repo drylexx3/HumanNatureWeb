@@ -277,12 +277,74 @@ document.addEventListener('DOMContentLoaded', () => {
   drawCanvas();
 
   // -------------------------------------------------------------
+  // -------------------------------------------------------------
+  // Dynamic Typing Engine Bridge Resolver
+  // Routes OS keystrokes to the local laptop daemon (port 5050 or Cloudflare Tunnel)
+  // -------------------------------------------------------------
+  let TYPING_API_BASE = '';
+  let bridgeResolved = false;
+
+  async function resolveTypingBackend() {
+    const host = window.location.hostname;
+    // Direct local access or Cloudflare tunnel access: relative path is already the local daemon!
+    if (host === 'localhost' || host === '127.0.0.1' || host.includes('trycloudflare.com')) {
+      TYPING_API_BASE = '';
+      bridgeResolved = true;
+      logTerminal(`[Bridge] 💻 Modo Local Activo: Conexión directa a hardware de tipeo.`);
+      return;
+    }
+
+    // Running on Vercel or custom public domain:
+    logTerminal(`[Bridge] 🌐 Modo Nube: Enlazando con el motor de tipeo en tu laptop...`);
+
+    // Probe order:
+    // 1. Direct local port 5050 (fastest)
+    // 2. Loopback localhost:5050
+    // 3. Cloudflare Tunnel (HTTPS -> HTTPS, no mixed-content or private network blocks)
+    const candidates = [
+      'http://127.0.0.1:5050',
+      'http://localhost:5050',
+      'https://previous-developers-responding-warrant.trycloudflare.com'
+    ];
+
+    for (const base of candidates) {
+      try {
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 1200);
+        const res = await fetch(`${base}/api/health`, {
+          signal: ctrl.signal,
+          mode: 'cors'
+        });
+        clearTimeout(tid);
+        if (res.ok) {
+          TYPING_API_BASE = base;
+          bridgeResolved = true;
+          logTerminal(`[Bridge] ⚡ Conectado con éxito a tu laptop (${base}).`);
+          logTerminal(`[Bridge] ✅ ¡Tipeo en Google Docs / Word listo para usar!`);
+          return;
+        }
+      } catch (err) {}
+    }
+
+    // Default to tunnel URL which is reachable via HTTPS
+    TYPING_API_BASE = 'https://previous-developers-responding-warrant.trycloudflare.com';
+    bridgeResolved = true;
+    logTerminal(`[Bridge] 🛡️ Enrutado mediante Túnel Seguro Cloudflare.`);
+  }
+
+  resolveTypingBackend();
+
+  // -------------------------------------------------------------
   // Real OS System Typing Trigger & Telemetry Synchronization
   // -------------------------------------------------------------
   async function startSystemTyping() {
     if (!currentEssay || !currentEssay.trim()) {
       alert('Por favor pega o carga un ensayo antes de iniciar.');
       return;
+    }
+
+    if (!bridgeResolved) {
+      await resolveTypingBackend();
     }
 
     const payload = {
@@ -304,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
     isTyping = true;
 
     try {
-      const resp = await fetch('/api/type/start', {
+      const resp = await fetch(`${TYPING_API_BASE}/api/type/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -323,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function pollTypingStatus() {
     try {
-      const resp = await fetch('/api/type/status');
+      const resp = await fetch(`${TYPING_API_BASE}/api/type/status`);
       const data = await resp.json();
 
       if (data.status) {
@@ -369,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function togglePause() {
     try {
-      const resp = await fetch('/api/type/pause', { method: 'POST' });
+      const resp = await fetch(`${TYPING_API_BASE}/api/type/pause`, { method: 'POST' });
       const data = await resp.json();
       logTerminal(`[Control] ${data.status === 'paused' ? '⏸ Pausado' : '▶ Reanudado'}`);
     } catch (e) {}
@@ -377,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function stopTyping() {
     try {
-      await fetch('/api/type/stop', { method: 'POST' });
+      await fetch(`${TYPING_API_BASE}/api/type/stop`, { method: 'POST' });
       logTerminal(`[Control] ⏹ Tipeo detenido por el usuario.`);
       resetTypingUi();
     } catch (e) {}

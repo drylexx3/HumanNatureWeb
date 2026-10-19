@@ -44,14 +44,36 @@ except ImportError as e:
     remove_emojis = lambda s: s
     get_typo = lambda c: 'e'
 
+# Ensure graphical display and authorization for rootless X11/XWayland keystrokes
+if "DISPLAY" not in os.environ:
+    os.environ["DISPLAY"] = ":0"
+
+if "XAUTHORITY" not in os.environ:
+    import glob
+    uid = os.getuid() if hasattr(os, "getuid") else 1000
+    auths = glob.glob(f"/run/user/{uid}/.*Xwaylandauth*")
+    if auths:
+        os.environ["XAUTHORITY"] = auths[0]
+    elif os.path.exists(os.path.expanduser("~/.Xauthority")):
+        os.environ["XAUTHORITY"] = os.path.expanduser("~/.Xauthority")
+
 # Setup fallback keystroke emitter if needed
 _pynput_kb = None
 PynputKey = None
-try:
-    from pynput.keyboard import Controller as PynputController, Key as PynputKey
-    _pynput_kb = PynputController()
-except Exception:
-    pass
+
+def get_pynput_kb():
+    global _pynput_kb, PynputKey
+    if _pynput_kb is None:
+        try:
+            from pynput.keyboard import Controller as PynputController, Key as PKey
+            PynputKey = PKey
+            _pynput_kb = PynputController()
+        except Exception as e:
+            pass
+    return _pynput_kb
+
+# Attempt eager initialization
+get_pynput_kb()
 
 def safe_emit_char(c: str) -> bool:
     if c in ("\u2019", "\u2018"):
@@ -63,10 +85,11 @@ def safe_emit_char(c: str) -> bool:
     elif c == "\u00a0":
         c = " "
 
-    # 1. pynput
-    if _pynput_kb is not None:
+    # 1. pynput (Zero permissions, native Linux XWayland/X11 & Windows & macOS)
+    kb = get_pynput_kb()
+    if kb is not None:
         try:
-            _pynput_kb.type(c)
+            kb.type(c)
             return True
         except Exception:
             pass
@@ -80,21 +103,22 @@ def safe_emit_char(c: str) -> bool:
     return False
 
 def safe_emit_key(k: str) -> bool:
-    if _pynput_kb is not None and PynputKey is not None:
+    kb = get_pynput_kb()
+    if kb is not None and PynputKey is not None:
         try:
             if k == "backspace":
-                _pynput_kb.press(PynputKey.backspace)
-                _pynput_kb.release(PynputKey.backspace)
+                kb.press(PynputKey.backspace)
+                kb.release(PynputKey.backspace)
                 return True
             elif k == "enter":
-                _pynput_kb.press(PynputKey.enter)
-                _pynput_kb.release(PynputKey.enter)
+                kb.press(PynputKey.enter)
+                kb.release(PynputKey.enter)
                 return True
             elif k == "shift+enter":
-                _pynput_kb.press(PynputKey.shift)
-                _pynput_kb.press(PynputKey.enter)
-                _pynput_kb.release(PynputKey.enter)
-                _pynput_kb.release(PynputKey.shift)
+                kb.press(PynputKey.shift)
+                kb.press(PynputKey.enter)
+                kb.release(PynputKey.enter)
+                kb.release(PynputKey.shift)
                 return True
         except Exception:
             pass
@@ -125,7 +149,25 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_private_network=True,
 )
+
+@app.middleware("http")
+async def pna_middleware(request: Request, call_next):
+    if request.method == "OPTIONS":
+        origin = request.headers.get("origin", "*")
+        from fastapi.responses import Response
+        res = Response(content="", status_code=200)
+        res.headers["Access-Control-Allow-Origin"] = origin
+        res.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+        res.headers["Access-Control-Allow-Headers"] = "*"
+        res.headers["Access-Control-Allow-Credentials"] = "true"
+        res.headers["Access-Control-Allow-Private-Network"] = "true"
+        return res
+
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Private-Network"] = "true"
+    return response
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
@@ -569,6 +611,22 @@ async def api_type_status():
     # Drain new logs
     typing_state["new_terminal_logs"] = []
     return res
+
+
+@app.get("/api/tunnel")
+async def get_tunnel_info():
+    url_file = os.path.join(BASE_DIR, "PUBLIC_URL.txt")
+    tunnel_url = None
+    if os.path.exists(url_file):
+        try:
+            with open(url_file, "r", encoding="utf-8") as f:
+                tunnel_url = f.read().strip()
+        except Exception:
+            pass
+    return {
+        "tunnel_url": tunnel_url,
+        "is_active": tunnel_url is not None and "trycloudflare.com" in tunnel_url
+    }
 
 
 # Backward compatibility for old endpoint
