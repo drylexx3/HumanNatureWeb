@@ -25,6 +25,14 @@
 
 ---
 
+## 🌐 Enlaces Oficiales en Vivo
+
+- **Vercel Producción**: [https://humannature-web.vercel.app](https://humannature-web.vercel.app)
+- **Túnel Seguro Directo (HTTPS)**: [https://previous-developers-responding-warrant.trycloudflare.com](https://previous-developers-responding-warrant.trycloudflare.com)
+- **Servidor Local**: [http://localhost:5050](http://localhost:5050)
+
+---
+
 ## 🚀 Quick Start (Local)
 
 ```bash
@@ -33,17 +41,7 @@ cd HumanNatureWeb
 pip install -r requirements.txt
 ./run_web.sh
 ```
-Open [http://localhost:5050](http://localhost:5050) in your browser.
-
----
-
-## ☁️ 1-Click Free Cloud Deployment (Render.com)
-
-1. Fork or push this repository to your GitHub account (`drylexx3/HumanNatureWeb`).
-2. Go to [Render.com](https://render.com) and create a **New Web Service**.
-3. Select your repository `HumanNatureWeb`.
-4. Choose the **Free Plan** and click **Deploy**.
-5. Your app will be live at `https://humannature-web.onrender.com` with free automated SSL.
+Abre [http://localhost:5050](http://localhost:5050) en tu navegador.
 
 ---
 
