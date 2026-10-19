@@ -5,7 +5,11 @@ from ctypes import wintypes
 import time
 import random
 import pyperclip
-import keyboard
+try:
+    import keyboard
+except Exception:
+    keyboard = None
+
 import threading
 import queue
 import subprocess
@@ -22,8 +26,12 @@ if os.path.exists(_local_blt):
     except Exception:
         pass
 
-import tkinter as tk
-from tkinter import ttk
+try:
+    import tkinter as tk
+    from tkinter import ttk
+except Exception:
+    tk = None
+    ttk = None
 
 # ============================================================
 # HumanNature v3.5.2
