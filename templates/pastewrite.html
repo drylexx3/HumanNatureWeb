@@ -3,235 +3,421 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>paste, write. — Universal Input Typist</title>
-  <link rel="stylesheet" href="/static/style.css">
-  <link rel="stylesheet" href="/static/pastewrite.css">
+  <title>HumanNature × paste, write. — Unified Typist & AI Studio</title>
+  <link rel="stylesheet" href="/static/unified.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Centered Desktop Window Container -->
+
+  <!-- Centered Master Window Wrapper -->
   <div class="window-wrapper">
     <div class="desktop-window" id="desktopWindow">
-      
-      <!-- Top Titlebar with App Switcher -->
+
+      <!-- Top Titlebar with Master Unified Tabs -->
       <div class="window-titlebar">
+        <!-- Window Controls -->
         <div class="titlebar-controls">
           <span class="dot dot-close" title="Cerrar"></span>
           <span class="dot dot-minimize" title="Minimizar"></span>
           <span class="dot dot-maximize" title="Maximizar"></span>
         </div>
 
-        <div class="app-switcher">
-          <a href="/" class="switcher-pill" title="Volver a HumanNature">⚡ HumanNature</a>
-          <a href="/paste-write" class="switcher-pill active" title="Paste, Write — Universal Typist">📋 paste, write.</a>
+        <!-- Master Tabs Switcher -->
+        <div class="master-nav-tabs">
+          <button class="nav-tab-btn active" data-tab="pastewrite" title="Tipeador Directo: Pega lo que sea y escríbelo">
+            📋 paste, write.
+          </button>
+          <button class="nav-tab-btn" data-tab="humanizer" title="Estudio de Humanización de Ensayos AI">
+            ⚡ Humanizer AI
+          </button>
+          <button class="nav-tab-btn" data-tab="playground" title="Inspección de Perplejidad y Métricas de Detección">
+            🧪 Playground & Métricas
+          </button>
+          <button class="nav-tab-btn" data-tab="settings" title="Ajustes de Hardware y Atajos de Teclado">
+            ⚙️ Ajustes
+          </button>
         </div>
 
+        <!-- Right Indicators -->
         <div class="titlebar-right">
-          <span class="connection-status" id="bridgeStatusBadge" title="Estado de conexión con el motor de hardware">● LOCAL BRIDGE</span>
+          <span class="connection-status" id="bridgeStatusBadge" title="Estado de enlace con el hardware local">● LOCAL NATIVE</span>
           <span class="titlebar-clock" id="liveClock">--:-- --</span>
         </div>
       </div>
 
-      <!-- Main Window Body -->
-      <div class="window-body pastewrite-body">
-        
-        <!-- LEFT PANEL: Pasting Canvas & Instruction Area -->
-        <div class="pw-left-panel">
-          
-          <!-- Top Toolbar Row -->
-          <div class="pw-header-row">
-            <div class="pw-title-box">
-              <h1 class="pw-main-title">paste, write<span class="pw-dot">.</span></h1>
-              <span class="pw-subtitle">Pega cualquier cosa. Escríbelo según le digas.</span>
+      <!-- Tab Content Area -->
+      <div class="tab-content-area">
+
+        <!-- =========================================================
+             TAB 1: PASTE, WRITE. (UNIVERSAL INPUT TYPIST)
+             ========================================================= -->
+        <div class="tab-panel active" id="tab-pastewrite">
+          <div class="pw-workspace-grid">
+            
+            <!-- Left Column: Pasting Canvas & Directive -->
+            <div class="pw-left-col">
+              
+              <!-- Header Bar -->
+              <div class="pw-header-bar">
+                <div>
+                  <h1 class="pw-hero-title">paste, write<span>.</span></h1>
+                  <span class="pw-hero-desc">Pega cualquier cosa. Escríbelo según le digas.</span>
+                </div>
+                <div class="pw-tool-buttons">
+                  <button class="pw-btn-tool" id="pwPasteBtn" title="Pegar contenido del portapapeles (Ctrl+V)">
+                    📋 Pegar (Ctrl+V)
+                  </button>
+                  <button class="pw-btn-tool" id="pwClearBtn" title="Limpiar lienzo">
+                    🧹 Limpiar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Quick Samples -->
+              <div class="pw-samples-strip">
+                <span class="pw-sample-tag">MUESTRAS:</span>
+                <button class="pw-chip-sample" id="sampleEssayBtn">📄 Ensayo</button>
+                <button class="pw-chip-sample" id="sampleCodeBtn">🐍 Código Python</button>
+                <button class="pw-chip-sample" id="sampleChatBtn">💬 Mensaje Chat</button>
+                <button class="pw-chip-sample" id="sampleMarkdownBtn">📝 Markdown</button>
+              </div>
+
+              <!-- Big Textarea -->
+              <div class="pw-text-container">
+                <textarea 
+                  id="pwTextInput" 
+                  class="pw-main-textarea" 
+                  placeholder="Pega cualquier cosa aquí (un ensayo, código con sangría, notas, chats o tareas)...&#10;&#10;Luego indícale abajo cómo quieres que lo escriba y presiona START (F9)."
+                  spellcheck="false"
+                ></textarea>
+                <div class="pw-text-status-bar">
+                  <span id="pwCharCount">0 caracteres</span>
+                  <span>•</span>
+                  <span id="pwWordCount">0 palabras</span>
+                  <span>•</span>
+                  <span id="pwLineCount">0 líneas</span>
+                  <span class="pw-time-estimate" id="pwEstimateTime">⏱ ~0s @ 72 WPM</span>
+                </div>
+              </div>
+
+              <!-- Instruction & Directive Section -->
+              <div class="pw-directive-box">
+                <span class="pw-directive-label">🎯 ¿CÓMO QUIERES QUE LO ESCRIBA? (DIRECTRIZ)</span>
+                
+                <div class="pw-directive-chips-row">
+                  <button class="pw-chip-dir active" data-directive="verbatim" title="Escribe carácter por carácter exactamente como está">
+                    🎯 Tal cual (Exacto)
+                  </button>
+                  <button class="pw-chip-dir" data-directive="code" title="Respeta sangría de código, llaves y comillas sin autocorregir">
+                    💻 Código limpio
+                  </button>
+                  <button class="pw-chip-dir" data-directive="stealth" title="Elimina asteriscos y markdown para que Google Docs no muestre avisos">
+                    🛡️ Google Docs Stealth
+                  </button>
+                  <button class="pw-chip-dir" data-directive="formal" title="Eleva el vocabulario a nivel académico antes de escribir">
+                    🎓 Más formal
+                  </button>
+                  <button class="pw-chip-dir" data-directive="casual" title="Aporta fluidez conversacional antes de escribir">
+                    🌊 Más natural
+                  </button>
+                  <button class="pw-chip-dir" data-directive="clean_markdown" title="Depura asteriscos y encabezados de markdown">
+                    🧹 Sin Markdown
+                  </button>
+                </div>
+
+                <div class="pw-custom-instruction-wrap">
+                  <input 
+                    type="text" 
+                    id="pwCustomInstruction" 
+                    class="pw-custom-input" 
+                    placeholder="Escribe una instrucción opcional (ej: 'hazlo más conciso', 'traduce al inglés')..."
+                  />
+                  <button class="pw-btn-transform" id="pwApplyInstructionBtn">
+                    ⚡ Aplicar al Texto
+                  </button>
+                </div>
+              </div>
+
             </div>
-            <div class="pw-quick-actions">
-              <button class="pw-btn-tool" id="pwPasteBtn" title="Pegar contenido del portapapeles">
-                📋 Pegar (Ctrl+V)
-              </button>
-              <button class="pw-btn-tool" id="pwClearBtn" title="Limpiar cuadro de texto">
-                🧹 Limpiar
-              </button>
+
+            <!-- Right Column: Typist Controls & Telemetry -->
+            <div class="pw-right-col">
+              
+              <!-- Rhythm Mode -->
+              <div class="pw-card">
+                <span class="pw-card-title">MODO DE RITMO</span>
+                <div class="pw-mode-grid">
+                  <button class="pw-btn-mode active" data-mode="human">👤 Humano</button>
+                  <button class="pw-btn-mode" data-mode="verbatim">🎯 Exacto</button>
+                  <button class="pw-btn-mode" data-mode="code">💻 Coder</button>
+                  <button class="pw-btn-mode" data-mode="turbo">🚀 Turbo</button>
+                </div>
+              </div>
+
+              <!-- Speed Slider -->
+              <div class="pw-card">
+                <div class="pw-card-header">
+                  <span class="pw-card-title">VELOCIDAD DE ESCRITURA</span>
+                  <span class="pw-val-highlight" id="pwWpmDisplay">72 WPM</span>
+                </div>
+                <input type="range" id="pwWpmSlider" min="25" max="160" value="72" class="analog-slider">
+                <div class="pw-slider-scale">
+                  <span>25 (Pausado)</span>
+                  <span>72 (Natural)</span>
+                  <span>160 (Ultra)</span>
+                </div>
+              </div>
+
+              <!-- Accuracy Slider -->
+              <div class="pw-card">
+                <div class="pw-card-header">
+                  <span class="pw-card-title">PRECISIÓN (ERRORES Y BACKSPACE)</span>
+                  <span class="pw-val-highlight" id="pwAccDisplay">96.5%</span>
+                </div>
+                <input type="range" id="pwAccSlider" min="80" max="100" step="0.5" value="96.5" class="analog-slider">
+              </div>
+
+              <!-- Delay Slider -->
+              <div class="pw-card">
+                <div class="pw-card-header">
+                  <span class="pw-card-title">TIEMPO PARA ENFOCAR VENTANA</span>
+                  <span class="pw-val-highlight" id="pwDelayDisplay">3s</span>
+                </div>
+                <input type="range" id="pwDelaySlider" min="1" max="10" value="3" class="analog-slider">
+              </div>
+
+              <!-- Switches -->
+              <div class="pw-card" style="gap: 5px;">
+                <label class="pw-check-item">
+                  <input type="checkbox" id="pwShiftEnterCheck">
+                  <span>Usar <code>Shift + Enter</code> (Discord/Slack/Forms)</span>
+                </label>
+                <label class="pw-check-item">
+                  <input type="checkbox" id="pwStripMarkdownCheck" checked>
+                  <span>Bloquear avisos de Markdown en Google Docs</span>
+                </label>
+              </div>
+
+              <!-- Big Execution Buttons -->
+              <div class="pw-action-stack">
+                <button class="pw-btn-big-start" id="pwStartBtn">
+                  <span>▶ ESCRIBIR AHORA (F9)</span>
+                </button>
+                <div class="pw-sub-btn-row">
+                  <button class="pw-btn-action" id="pwPauseBtn" disabled>
+                    <span>⏸ PAUSA (F8)</span>
+                  </button>
+                  <button class="pw-btn-action pw-btn-stop" id="pwStopBtn" disabled>
+                    <span>⏹ CANCELAR (F10)</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Telemetry & Waveform Oscilloscope -->
+              <div class="pw-telemetry-panel">
+                <div class="pw-telemetry-top">
+                  <span id="pwStatusLabel">● Listo para escribir</span>
+                  <span id="pwProgressPercent" style="color:var(--c-cyan);">0%</span>
+                </div>
+                <div class="pw-progress-bg">
+                  <div class="pw-progress-fill" id="pwProgressFill"></div>
+                </div>
+                <div class="pw-telemetry-stats">
+                  <span id="pwTelemetrySub">> Presiona F9 para escribir en destino.</span>
+                  <span id="pwLiveWpmLabel" style="color:var(--c-cyan);font-weight:bold;">0 WPM</span>
+                </div>
+                <div class="pw-oscilloscope-box">
+                  <canvas id="pwAnalogCanvas" width="380" height="40"></canvas>
+                </div>
+              </div>
+
+              <!-- Terminal Console -->
+              <div class="pw-terminal-console" id="pwTerminal">
+                <div class="pw-term-line">> [paste, write.] Suite unificada cargada y lista.</div>
+              </div>
+
             </div>
+
           </div>
-
-          <!-- Quick Sample Chips -->
-          <div class="pw-samples-row">
-            <span class="pw-samples-label">EJEMPLOS RÁPIDOS:</span>
-            <button class="pw-sample-chip" id="sampleEssayBtn">📄 Ensayo</button>
-            <button class="pw-sample-chip" id="sampleCodeBtn">🐍 Código Python</button>
-            <button class="pw-sample-chip" id="sampleChatBtn">💬 Mensaje Chat</button>
-            <button class="pw-sample-chip" id="sampleMarkdownBtn">📝 Markdown</button>
-          </div>
-
-          <!-- The Big Pasting Workspace -->
-          <div class="pw-textarea-wrapper">
-            <textarea 
-              id="pwTextInput" 
-              class="pw-textarea" 
-              placeholder="Pega cualquier cosa aquí (un ensayo, código, notas, tareas o cualquier texto)...&#10;&#10;Luego dile abajo cómo quieres que lo escriba y presiona START (F9)."
-              spellcheck="false"
-            ></textarea>
-            <div class="pw-textarea-footer">
-              <span id="pwCharCount">0 caracteres</span>
-              <span class="pw-sep">•</span>
-              <span id="pwWordCount">0 palabras</span>
-              <span class="pw-sep">•</span>
-              <span id="pwLineCount">0 líneas</span>
-              <span class="pw-sep">•</span>
-              <span id="pwEstimateTime" class="pw-time-badge">⏱ ~0s @ 72 WPM</span>
-            </div>
-          </div>
-
-          <!-- "Según Yo Le Diga": Instruction Bar -->
-          <div class="pw-instruction-section">
-            <div class="pw-instruction-header">
-              <span class="pw-inst-title">🎯 ¿CÓMO QUIERES QUE LO ESCRIBA? (INSTRUCCIÓN / FORMATO)</span>
-            </div>
-
-            <!-- Preset Instruction Chips -->
-            <div class="pw-directive-chips">
-              <button class="pw-chip active" data-directive="verbatim" title="Escribe exactamente lo pegado, carácter por carácter sin cambios">
-                🎯 Tal cual (Exacto)
-              </button>
-              <button class="pw-chip" data-directive="code" title="Respeta indentación de código, llaves y comillas sin autocorregir">
-                💻 Código limpio
-              </button>
-              <button class="pw-chip" data-directive="stealth" title="Elimina asteriscos y sintaxis para que Google Docs no muestre avisos">
-                🛡️ Google Docs Stealth
-              </button>
-              <button class="pw-chip" data-directive="formal" title="Eleva el vocabulario a nivel académico antes de escribir">
-                🎓 Más formal
-              </button>
-              <button class="pw-chip" data-directive="casual" title="Hace el texto más fluido y conversacional antes de escribir">
-                🌊 Más natural
-              </button>
-              <button class="pw-chip" data-directive="clean_markdown" title="Depura asteriscos y encabezados">
-                🧹 Sin Markdown
-              </button>
-            </div>
-
-            <!-- Custom Instruction Input & Apply Button -->
-            <div class="pw-custom-instruction-row">
-              <input 
-                type="text" 
-                id="pwCustomInstruction" 
-                class="pw-instruction-input" 
-                placeholder="Escribe una instrucción opcional (ej: 'hazlo más conciso', 'traduce al inglés')..."
-              />
-              <button class="pw-btn-apply" id="pwApplyInstructionBtn" title="Aplica la instrucción al texto antes de comenzar a escribir">
-                ⚡ Aplicar al Texto
-              </button>
-            </div>
-          </div>
-
         </div>
 
-        <!-- RIGHT PANEL: Typist Controls & Real-Time Telemetry -->
-        <div class="pw-right-panel">
-          
-          <!-- Mode Quick Buttons -->
-          <div class="pw-panel-card">
-            <span class="pw-card-label">MODO DE RITMO</span>
-            <div class="pw-mode-buttons" id="pwModeButtonGroup">
-              <button class="pw-mode-btn active" data-mode="human">👤 Humano</button>
-              <button class="pw-mode-btn" data-mode="verbatim">🎯 Exacto</button>
-              <button class="pw-mode-btn" data-mode="code">💻 Coder</button>
-              <button class="pw-mode-btn" data-mode="turbo">🚀 Turbo</button>
+        <!-- =========================================================
+             TAB 2: HUMANIZER AI (ESSAY BYPASS STUDIO)
+             ========================================================= -->
+        <div class="tab-panel" id="tab-humanizer">
+          <div class="hn-studio-layout">
+            
+            <!-- Top Presets Bar -->
+            <div class="hn-studio-topbar">
+              <div class="hn-title-group">
+                <h2>⚡ Humanizer AI Studio</h2>
+                <span>Motores multi-paso de humanización contextual y tono académico</span>
+              </div>
+              <div class="hn-presets-strip">
+                <button class="hn-preset-pill" data-preset="formal">Formal</button>
+                <button class="hn-preset-pill" data-preset="casual">Casual</button>
+                <button class="hn-preset-pill active" data-preset="espanol">Español</button>
+                <button class="hn-preset-pill" data-preset="essay">Essay</button>
+                <button class="hn-preset-pill" data-preset="coder">Coder</button>
+                <button class="hn-preset-pill" data-preset="turbo">Turbo</button>
+                <button class="hn-preset-pill" data-preset="stealth">Stealth</button>
+              </div>
             </div>
+
+            <!-- Dual Editor (Input vs Output) -->
+            <div class="hn-dual-editors">
+              <!-- Left: Input Editor -->
+              <div class="hn-editor-card">
+                <div class="hn-editor-header">
+                  <span>TEXTO ORIGINAL / IA</span>
+                  <div class="hn-editor-actions">
+                    <button class="hn-btn-mini" id="hnPasteBtn">📋 Pegar</button>
+                    <button class="hn-btn-mini" id="hnSampleEsBtn">🇪🇸 Muestra ES</button>
+                    <button class="hn-btn-mini" id="hnSampleEnBtn">🇺🇸 Muestra EN</button>
+                    <button class="hn-btn-mini" id="hnClearBtn">🧹 Limpiar</button>
+                  </div>
+                </div>
+                <textarea 
+                  id="hnInputText" 
+                  class="hn-textarea" 
+                  placeholder="Pega aquí el texto generado por IA que deseas humanizar..."
+                  spellcheck="false"
+                ></textarea>
+              </div>
+
+              <!-- Right: Output Editor -->
+              <div class="hn-editor-card">
+                <div class="hn-editor-header">
+                  <span>TEXTO HUMANIZADO (100% HUMANO)</span>
+                  <div class="hn-editor-actions">
+                    <button class="hn-btn-mini" id="hnCleanMarkdownBtn">🧹 Limpiar Markdown</button>
+                    <button class="hn-btn-mini" id="hnCopyBtn">📋 Copiar</button>
+                  </div>
+                </div>
+                <textarea 
+                  id="hnOutputText" 
+                  class="hn-textarea" 
+                  placeholder="El resultado humanizado aparecerá aquí..." 
+                  spellcheck="false"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Control & Transfer Bar -->
+            <div class="hn-controls-bar">
+              <div class="hn-engine-select-group">
+                <label>MOTOR DE HUMANIZACIÓN:</label>
+                <select id="hnEngineSelect" class="hn-select">
+                  <option value="⚡ HumanizeAI Pro">⚡ HumanizeAI Pro (Bilingüe)</option>
+                  <option value="🧠 GhostWriter Ultra">🧠 GhostWriter Ultra (Orgánico)</option>
+                  <option value="🎓 Academic Master">🎓 Academic Master (Académico)</option>
+                  <option value="🌊 Natural Flow">🌊 Natural Flow (Conversacional)</option>
+                </select>
+                <label style="margin-left: 10px; cursor: pointer;">
+                  <input type="checkbox" id="hnCasualCheck"> Modo Casual
+                </label>
+              </div>
+
+              <div class="hn-action-buttons">
+                <button class="hn-btn-run" id="hnRunBtn">
+                  ⚡ RUN HUMANIZER
+                </button>
+                <button class="hn-btn-send-typist" id="hnSendToTypistBtn" title="Transfiere el texto a paste, write. para comenzar a escribir en Google Docs">
+                  🚀 USAR EN PASTE, WRITE (ESCRIBIR F9)
+                </button>
+              </div>
+            </div>
+
           </div>
+        </div>
 
-          <!-- Speed Display & Slider -->
-          <div class="pw-panel-card">
-            <div class="pw-card-header-flex">
-              <span class="pw-card-label">VELOCIDAD DE ESCRITURA</span>
-              <span class="pw-speed-val" id="pwWpmDisplay">72 WPM</span>
+        <!-- =========================================================
+             TAB 3: PLAYGROUND & MÉTRICAS
+             ========================================================= -->
+        <div class="tab-panel" id="tab-playground">
+          <div class="pg-metrics-layout">
+            
+            <div class="pg-cards-row">
+              <div class="pg-metric-card">
+                <span class="pg-card-title">ENTRADA (ORIGINAL)</span>
+                <span class="pg-card-val" id="cardInWords">0 palabras</span>
+              </div>
+              <div class="pg-metric-card">
+                <span class="pg-card-title">SALIDA (HUMANIZADA)</span>
+                <span class="pg-card-val" id="cardOutWords">0 palabras</span>
+              </div>
+              <div class="pg-metric-card">
+                <span class="pg-card-title">VARIACIÓN DE PALABRAS</span>
+                <span class="pg-card-val" id="cardDiff">0 modificadas</span>
+              </div>
+              <div class="pg-metric-card">
+                <span class="pg-card-title">IDIOMA DETECTADO</span>
+                <span class="pg-card-val" id="cardLang">—</span>
+              </div>
+              <div class="pg-metric-card">
+                <span class="pg-card-title">TIEMPO ESTIMADO</span>
+                <span class="pg-card-val" id="cardTiming">0m 00s</span>
+              </div>
             </div>
-            <input type="range" id="pwWpmSlider" min="25" max="160" value="72" class="analog-slider">
-            <div class="pw-slider-hints">
-              <span>25 (Lento)</span>
-              <span>72 (Natural)</span>
-              <span>160 (Ultra)</span>
+
+            <!-- Deep Inspector -->
+            <div class="pg-inspector-box">
+              <span class="pg-inspector-title">VEREDICTO DE DETECCIÓN & PERPLEJIDAD</span>
+              <div style="font-size: 15px; font-weight: bold; color: var(--c-green);" id="cardPerplexity">
+                ● 100% Puntuación Humana (0% AI)
+              </div>
+              <div style="font-size: 11px; color: var(--c-muted); margin-top: 4px;">
+                Detección de patrones sintéticos, variabilidad de longitud de frases y palabras cliché típicas de ChatGPT / Claude / Gemini:
+              </div>
+              <div class="pg-buzzwords-cloud" id="buzzwordsCloud">
+                <span style="font-size: 10px; color: var(--c-green);">✓ No se detectaron palabras cliché en el texto.</span>
+              </div>
             </div>
+
           </div>
+        </div>
 
-          <!-- Accuracy Rate Slider -->
-          <div class="pw-panel-card">
-            <div class="pw-card-header-flex">
-              <span class="pw-card-label">PRECISIÓN HUMANA (ERRORES Y BACKSPACE)</span>
-              <span class="pw-acc-val" id="pwAccDisplay">96.5%</span>
+        <!-- =========================================================
+             TAB 4: AJUSTES & ATAJOS
+             ========================================================= -->
+        <div class="tab-panel" id="tab-settings">
+          <div class="set-settings-layout">
+            
+            <div class="set-card">
+              <h3>⌨️ ATAJOS GLOBALES DE TECLADO</h3>
+              <table class="set-key-table">
+                <tr>
+                  <td><span class="set-key-badge">F9</span> o <span class="set-key-badge">Ctrl + Enter</span></td>
+                  <td>Iniciar / Detener tipeo en la ventana activa</td>
+                </tr>
+                <tr>
+                  <td><span class="set-key-badge">F8</span></td>
+                  <td>Pausar / Reanudar escritura</td>
+                </tr>
+                <tr>
+                  <td><span class="set-key-badge">F10</span> o <span class="set-key-badge">Esc</span></td>
+                  <td>Cancelar y abortar tipeo de emergencia</td>
+                </tr>
+              </table>
+              <div style="font-size: 10px; color: var(--c-muted); line-height: 1.5; margin-top: 8px;">
+                💡 <strong>Consejo:</strong> Pulsa <code>F9</code> desde cualquier pestaña o aplicación para iniciar la cuenta atrás y enfocar tu documento de Google Docs o Word.
+              </div>
             </div>
-            <input type="range" id="pwAccSlider" min="80" max="100" step="0.5" value="96.5" class="analog-slider">
+
+            <div class="set-card">
+              <h3>🛡️ DIAGNÓSTICO DEL PUENTE DE HARDWARE</h3>
+              <div style="font-size: 11px; color: var(--c-text); display: flex; flex-direction: column; gap: 6px;">
+                <div>● <strong>Servidor Local:</strong> <code>http://127.0.0.1:5050</code> (Activo)</div>
+                <div>● <strong>Túnel Seguro Cloudflare:</strong> <code>https://feed-dee-spoke-resist.trycloudflare.com</code></div>
+                <div>● <strong>Dominio Vercel:</strong> <code>https://humannature-web.vercel.app</code></div>
+                <div>● <strong>Sintetizador:</strong> X11/XWayland rootless pynput + xdotool (Activo)</div>
+                <div>● <strong>Filtro Anti-Google Docs:</strong> Activo (elimina asteriscos y comillas que abren notificaciones en Docs).</div>
+              </div>
+            </div>
+
           </div>
-
-          <!-- Delay Slider -->
-          <div class="pw-panel-card">
-            <div class="pw-card-header-flex">
-              <span class="pw-card-label">TIEMPO PARA CAMBIAR DE VENTANA</span>
-              <span class="pw-delay-val" id="pwDelayDisplay">3s</span>
-            </div>
-            <input type="range" id="pwDelaySlider" min="1" max="10" value="3" class="analog-slider">
-            <span class="pw-hint-text">Da clic en Google Docs, Word o tu editor durante este tiempo.</span>
-          </div>
-
-          <!-- Typing Switches -->
-          <div class="pw-panel-card pw-options-card">
-            <span class="pw-card-label">AJUSTES DE DESTINO</span>
-            <label class="pw-checkbox-label">
-              <input type="checkbox" id="pwShiftEnterCheck">
-              <span>Usar <code>Shift + Enter</code> para nuevas líneas (Chats/Slack)</span>
-            </label>
-            <label class="pw-checkbox-label">
-              <input type="checkbox" id="pwStripMarkdownCheck" checked>
-              <span>Bloquear advertencias de Markdown en Google Docs</span>
-            </label>
-            <label class="pw-checkbox-label">
-              <input type="checkbox" id="pwPunctuationPauses" checked>
-              <span>Pausas cognitivas en signos de puntuación (. , ; : ? !)</span>
-            </label>
-          </div>
-
-          <!-- Execution Controls -->
-          <div class="pw-exec-group">
-            <button class="pw-btn-start" id="pwStartBtn">
-              <span>▶ ESCRIBIR AHORA (F9)</span>
-            </button>
-            <div class="pw-btn-row">
-              <button class="pw-btn-sub" id="pwPauseBtn" disabled>
-                <span>⏸ PAUSA (F8)</span>
-              </button>
-              <button class="pw-btn-sub pw-btn-stop" id="pwStopBtn" disabled>
-                <span>⏹ CANCELAR (F10)</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Real-time Progress & Telemetry -->
-          <div class="pw-telemetry-box">
-            <div class="pw-telemetry-header">
-              <span id="pwStatusLabel">● Listo para escribir</span>
-              <span id="pwProgressPercent">0%</span>
-            </div>
-            <div class="pw-progress-bar-bg">
-              <div class="pw-progress-bar-fill" id="pwProgressFill"></div>
-            </div>
-            <div class="pw-telemetry-details">
-              <span id="pwTelemetrySub">> Esperando inicio...</span>
-              <span id="pwLiveWpmLabel">0 WPM</span>
-            </div>
-
-            <!-- Oscilloscope Canvas -->
-            <div class="pw-canvas-wrapper">
-              <canvas id="pwAnalogCanvas" width="400" height="42"></canvas>
-            </div>
-          </div>
-
-          <!-- Mini Terminal Output -->
-          <div class="pw-terminal" id="pwTerminal">
-            <div class="pw-term-line">> [paste, write.] Sistema cargado y listo.</div>
-          </div>
-
         </div>
 
       </div>
@@ -239,6 +425,6 @@
     </div>
   </div>
 
-  <script src="/static/pastewrite.js"></script>
+  <script src="/static/unified.js"></script>
 </body>
 </html>
