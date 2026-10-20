@@ -35,13 +35,21 @@
 
 ## 🚀 Quick Start (Local)
 
+### Opción 1: Suite Web (Navegador)
 ```bash
 git clone https://github.com/drylexx3/HumanNatureWeb.git
 cd HumanNatureWeb
 pip install -r requirements.txt
 ./run_web.sh
 ```
-Abre [http://localhost:5050](http://localhost:5050) en tu navegador.
+Abre [http://localhost:5050](http://localhost:5050) o usa el dominio público [https://humannature-web.vercel.app](https://humannature-web.vercel.app).
+
+### Opción 2: Suite de Escritorio Nativa (Sin Navegador)
+```bash
+cd desktop
+./run.sh
+```
+Inicia la aplicación gráfica analógica con atajos globales (**F9** Iniciar/Pausar, **F8** Pausa, **F10** Detener) y doble pestaña unificada (**HumanNature Studio** y **paste, write.**).
 
 ---
 

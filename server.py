@@ -471,7 +471,7 @@ def background_type_worker(req: StartTypingRequest):
                 time.sleep(random.uniform(0.12, 0.25))
                 safe_emit_key("backspace")
                 typing_state["keystrokes"] += 1
-                time.sleep(random.uniform(0.06, 0.12))
+                time.sleep(max(0.12, base_delay * 0.6))
 
             # Emit actual character
             if char == "\n":
