@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>paste, write. — Universal Input Typist</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/pastewrite.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Centered Desktop Window Container -->
+  <div class="window-wrapper">
+    <div class="desktop-window" id="desktopWindow">
+      
+      <!-- Top Titlebar with App Switcher -->
+      <div class="window-titlebar">
+        <div class="titlebar-controls">
+          <span class="dot dot-close" title="Cerrar"></span>
+          <span class="dot dot-minimize" title="Minimizar"></span>
+          <span class="dot dot-maximize" title="Maximizar"></span>
+        </div>
+
+        <div class="app-switcher">
+          <a href="/" class="switcher-pill" title="Volver a HumanNature">⚡ HumanNature</a>
+          <a href="/paste-write" class="switcher-pill active" title="Paste, Write — Universal Typist">📋 paste, write.</a>
+        </div>
+
+        <div class="titlebar-right">
+          <span class="connection-status" id="bridgeStatusBadge" title="Estado de conexión con el motor de hardware">● LOCAL BRIDGE</span>
+          <span class="titlebar-clock" id="liveClock">--:-- --</span>
+        </div>
+      </div>
+
+      <!-- Main Window Body -->
+      <div class="window-body pastewrite-body">
+        
+        <!-- LEFT PANEL: Pasting Canvas & Instruction Area -->
+        <div class="pw-left-panel">
+          
+          <!-- Top Toolbar Row -->
+          <div class="pw-header-row">
+            <div class="pw-title-box">
+              <h1 class="pw-main-title">paste, write<span class="pw-dot">.</span></h1>
+              <span class="pw-subtitle">Pega cualquier cosa. Escríbelo según le digas.</span>
+            </div>
+            <div class="pw-quick-actions">
+              <button class="pw-btn-tool" id="pwPasteBtn" title="Pegar contenido del portapapeles">
+                📋 Pegar (Ctrl+V)
+              </button>
+              <button class="pw-btn-tool" id="pwClearBtn" title="Limpiar cuadro de texto">
+                🧹 Limpiar
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Sample Chips -->
+          <div class="pw-samples-row">
+            <span class="pw-samples-label">EJEMPLOS RÁPIDOS:</span>
+            <button class="pw-sample-chip" id="sampleEssayBtn">📄 Ensayo</button>
+            <button class="pw-sample-chip" id="sampleCodeBtn">🐍 Código Python</button>
+            <button class="pw-sample-chip" id="sampleChatBtn">💬 Mensaje Chat</button>
+            <button class="pw-sample-chip" id="sampleMarkdownBtn">📝 Markdown</button>
+          </div>
+
+          <!-- The Big Pasting Workspace -->
+          <div class="pw-textarea-wrapper">
+            <textarea 
+              id="pwTextInput" 
+              class="pw-textarea" 
+              placeholder="Pega cualquier cosa aquí (un ensayo, código, notas, tareas o cualquier texto)...&#10;&#10;Luego dile abajo cómo quieres que lo escriba y presiona START (F9)."
+              spellcheck="false"
+            ></textarea>
+            <div class="pw-textarea-footer">
+              <span id="pwCharCount">0 caracteres</span>
+              <span class="pw-sep">•</span>
+              <span id="pwWordCount">0 palabras</span>
+              <span class="pw-sep">•</span>
+              <span id="pwLineCount">0 líneas</span>
+              <span class="pw-sep">•</span>
+              <span id="pwEstimateTime" class="pw-time-badge">⏱ ~0s @ 72 WPM</span>
+            </div>
+          </div>
+
+          <!-- "Según Yo Le Diga": Instruction Bar -->
+          <div class="pw-instruction-section">
+            <div class="pw-instruction-header">
+              <span class="pw-inst-title">🎯 ¿CÓMO QUIERES QUE LO ESCRIBA? (INSTRUCCIÓN / FORMATO)</span>
+            </div>
+
+            <!-- Preset Instruction Chips -->
+            <div class="pw-directive-chips">
+              <button class="pw-chip active" data-directive="verbatim" title="Escribe exactamente lo pegado, carácter por carácter sin cambios">
+                🎯 Tal cual (Exacto)
+              </button>
+              <button class="pw-chip" data-directive="code" title="Respeta indentación de código, llaves y comillas sin autocorregir">
+                💻 Código limpio
+              </button>
+              <button class="pw-chip" data-directive="stealth" title="Elimina asteriscos y sintaxis para que Google Docs no muestre avisos">
+                🛡️ Google Docs Stealth
+              </button>
+              <button class="pw-chip" data-directive="formal" title="Eleva el vocabulario a nivel académico antes de escribir">
+                🎓 Más formal
+              </button>
+              <button class="pw-chip" data-directive="casual" title="Hace el texto más fluido y conversacional antes de escribir">
+                🌊 Más natural
+              </button>
+              <button class="pw-chip" data-directive="clean_markdown" title="Depura asteriscos y encabezados">
+                🧹 Sin Markdown
+              </button>
+            </div>
+
+            <!-- Custom Instruction Input & Apply Button -->
+            <div class="pw-custom-instruction-row">
+              <input 
+                type="text" 
+                id="pwCustomInstruction" 
+                class="pw-instruction-input" 
+                placeholder="Escribe una instrucción opcional (ej: 'hazlo más conciso', 'traduce al inglés')..."
+              />
+              <button class="pw-btn-apply" id="pwApplyInstructionBtn" title="Aplica la instrucción al texto antes de comenzar a escribir">
+                ⚡ Aplicar al Texto
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT PANEL: Typist Controls & Real-Time Telemetry -->
+        <div class="pw-right-panel">
+          
+          <!-- Mode Quick Buttons -->
+          <div class="pw-panel-card">
+            <span class="pw-card-label">MODO DE RITMO</span>
+            <div class="pw-mode-buttons" id="pwModeButtonGroup">
+              <button class="pw-mode-btn active" data-mode="human">👤 Humano</button>
+              <button class="pw-mode-btn" data-mode="verbatim">🎯 Exacto</button>
+              <button class="pw-mode-btn" data-mode="code">💻 Coder</button>
+              <button class="pw-mode-btn" data-mode="turbo">🚀 Turbo</button>
+            </div>
+          </div>
+
+          <!-- Speed Display & Slider -->
+          <div class="pw-panel-card">
+            <div class="pw-card-header-flex">
+              <span class="pw-card-label">VELOCIDAD DE ESCRITURA</span>
+              <span class="pw-speed-val" id="pwWpmDisplay">72 WPM</span>
+            </div>
+            <input type="range" id="pwWpmSlider" min="25" max="160" value="72" class="analog-slider">
+            <div class="pw-slider-hints">
+              <span>25 (Lento)</span>
+              <span>72 (Natural)</span>
+              <span>160 (Ultra)</span>
+            </div>
+          </div>
+
+          <!-- Accuracy Rate Slider -->
+          <div class="pw-panel-card">
+            <div class="pw-card-header-flex">
+              <span class="pw-card-label">PRECISIÓN HUMANA (ERRORES Y BACKSPACE)</span>
+              <span class="pw-acc-val" id="pwAccDisplay">96.5%</span>
+            </div>
+            <input type="range" id="pwAccSlider" min="80" max="100" step="0.5" value="96.5" class="analog-slider">
+          </div>
+
+          <!-- Delay Slider -->
+          <div class="pw-panel-card">
+            <div class="pw-card-header-flex">
+              <span class="pw-card-label">TIEMPO PARA CAMBIAR DE VENTANA</span>
+              <span class="pw-delay-val" id="pwDelayDisplay">3s</span>
+            </div>
+            <input type="range" id="pwDelaySlider" min="1" max="10" value="3" class="analog-slider">
+            <span class="pw-hint-text">Da clic en Google Docs, Word o tu editor durante este tiempo.</span>
+          </div>
+
+          <!-- Typing Switches -->
+          <div class="pw-panel-card pw-options-card">
+            <span class="pw-card-label">AJUSTES DE DESTINO</span>
+            <label class="pw-checkbox-label">
+              <input type="checkbox" id="pwShiftEnterCheck">
+              <span>Usar <code>Shift + Enter</code> para nuevas líneas (Chats/Slack)</span>
+            </label>
+            <label class="pw-checkbox-label">
+              <input type="checkbox" id="pwStripMarkdownCheck" checked>
+              <span>Bloquear advertencias de Markdown en Google Docs</span>
+            </label>
+            <label class="pw-checkbox-label">
+              <input type="checkbox" id="pwPunctuationPauses" checked>
+              <span>Pausas cognitivas en signos de puntuación (. , ; : ? !)</span>
+            </label>
+          </div>
+
+          <!-- Execution Controls -->
+          <div class="pw-exec-group">
+            <button class="pw-btn-start" id="pwStartBtn">
+              <span>▶ ESCRIBIR AHORA (F9)</span>
+            </button>
+            <div class="pw-btn-row">
+              <button class="pw-btn-sub" id="pwPauseBtn" disabled>
+                <span>⏸ PAUSA (F8)</span>
+              </button>
+              <button class="pw-btn-sub pw-btn-stop" id="pwStopBtn" disabled>
+                <span>⏹ CANCELAR (F10)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Real-time Progress & Telemetry -->
+          <div class="pw-telemetry-box">
+            <div class="pw-telemetry-header">
+              <span id="pwStatusLabel">● Listo para escribir</span>
+              <span id="pwProgressPercent">0%</span>
+            </div>
+            <div class="pw-progress-bar-bg">
+              <div class="pw-progress-bar-fill" id="pwProgressFill"></div>
+            </div>
+            <div class="pw-telemetry-details">
+              <span id="pwTelemetrySub">> Esperando inicio...</span>
+              <span id="pwLiveWpmLabel">0 WPM</span>
+            </div>
+
+            <!-- Oscilloscope Canvas -->
+            <div class="pw-canvas-wrapper">
+              <canvas id="pwAnalogCanvas" width="400" height="42"></canvas>
+            </div>
+          </div>
+
+          <!-- Mini Terminal Output -->
+          <div class="pw-terminal" id="pwTerminal">
+            <div class="pw-term-line">> [paste, write.] Sistema cargado y listo.</div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/static/pastewrite.js"></script>
+</body>
+</html>

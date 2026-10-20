@@ -224,9 +224,14 @@ class StartTypingRequest(BaseModel):
     use_shift_enter: bool = False
     remove_asterisks: bool = True
     remove_emojis: bool = False
+    mode: str = "human"  # "human", "verbatim", "code", "stealth", "turbo"
 
 class CleanMarkdownRequest(BaseModel):
     text: str
+
+class TransformRequest(BaseModel):
+    text: str
+    instruction: str = "verbatim"
 
 
 # ---------------------------------------------------------------------
@@ -365,8 +370,17 @@ def background_type_worker(req: StartTypingRequest):
         is_system_paused = False
 
     text = req.text
-    # Completely strip any markdown syntax and polish punctuation for natural human writing
-    if getattr(req, "remove_asterisks", True):
+    mode = getattr(req, "mode", "human")
+    if mode in ("code", "verbatim"):
+        text = req.text
+        req.use_fragments = False
+        req.accuracy = 100.0
+    elif mode == "turbo":
+        text = req.text
+        req.use_fragments = False
+        req.accuracy = 100.0
+        req.wpm = max(req.wpm, 150)
+    elif getattr(req, "remove_asterisks", True) or mode == "stealth":
         text = smart_clean_markdown(text)
     else:
         text = normalize_whitespace(text)
@@ -382,7 +396,7 @@ def background_type_worker(req: StartTypingRequest):
     typing_state["typos_fixed"] = 0
     typing_state["recent_latencies"] = [160] * 65
     typing_state["new_terminal_logs"] = [
-        f"[Control] ▶ Iniciando tipeo en el sistema ({len(text)} caracteres, {req.wpm} WPM)..."
+        f"[Control] ▶ Iniciando tipeo [{mode.upper()}] ({len(text)} caracteres, {req.wpm} WPM)..."
     ]
 
     # Countdown phase
@@ -400,11 +414,14 @@ def background_type_worker(req: StartTypingRequest):
             time.sleep(0.1)
 
     typing_state["status"] = "● Status: Typing active... (F8 Pausa, F10 Detener)"
-    typing_state["new_terminal_logs"].append("[Control] ▶ Cuenta atrás terminada. Escribiendo en ventana activa...")
+    typing_state["new_terminal_logs"].append(f"[Control] ▶ Cuenta atrás terminada. Escribiendo en ventana activa ({mode})...")
 
     cpm = max(1, req.wpm * 5)
     base_delay = 60.0 / cpm
-    typo_chance = max(0.0, (100.0 - req.accuracy) / 100.0)
+    if mode in ("code", "verbatim", "turbo"):
+        typo_chance = 0.0
+    else:
+        typo_chance = max(0.0, (100.0 - req.accuracy) / 100.0)
 
     is_es = is_spanish_text(text)
     connectors = [
@@ -511,6 +528,68 @@ async def serve_index():
         with open(index_file, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     return HTMLResponse("<h1>HumanNature Web Edition is loading...</h1>")
+
+
+@app.get("/paste-write", response_class=HTMLResponse)
+async def serve_pastewrite():
+    pastewrite_file = os.path.join(TEMPLATES_DIR, "pastewrite.html")
+    if os.path.exists(pastewrite_file):
+        with open(pastewrite_file, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse("<h1>Paste, Write is loading...</h1>")
+
+
+@app.post("/api/pastewrite/transform")
+async def api_pastewrite_transform(req: TransformRequest):
+    text = req.text
+    inst = req.instruction.strip().lower()
+
+    if not text or not text.strip():
+        return {"success": True, "transformed_text": text, "directive": "empty"}
+
+    if inst in ("verbatim", "tal cual", "exacto", "codigo", "code", "ninguna"):
+        return {"success": True, "transformed_text": text, "directive": "verbatim"}
+
+    if any(k in inst for k in ["markdown", "asterisco", "limpiar", "clean", "stealth"]):
+        cleaned = smart_clean_markdown(text)
+        return {"success": True, "transformed_text": cleaned, "directive": "clean_markdown"}
+
+    if any(k in inst for k in ["formal", "academico", "académico", "scholarly"]):
+        if run_humanizer is not None:
+            try:
+                humanized = run_humanizer(text=text, engine="🎓 Academic Master")
+                return {"success": True, "transformed_text": humanized, "directive": "formal"}
+            except Exception:
+                pass
+        return {"success": True, "transformed_text": text, "directive": "fallback"}
+
+    if any(k in inst for k in ["casual", "natural", "conversacional", "fluido"]):
+        if run_humanizer is not None:
+            try:
+                humanized = run_humanizer(text=text, engine="🌊 Natural Flow", casual_mode=True)
+                return {"success": True, "transformed_text": humanized, "directive": "casual"}
+            except Exception:
+                pass
+        return {"success": True, "transformed_text": text, "directive": "fallback"}
+
+    if any(k in inst for k in ["humano", "humanize", "ghost"]):
+        if run_humanizer is not None:
+            try:
+                humanized = run_humanizer(text=text, engine="⚡ HumanizeAI Pro")
+                return {"success": True, "transformed_text": humanized, "directive": "humanize"}
+            except Exception:
+                pass
+        return {"success": True, "transformed_text": text, "directive": "fallback"}
+
+    # Fallback to smart humanizer
+    if run_humanizer is not None:
+        try:
+            humanized = run_humanizer(text=text, engine="⚡ HumanizeAI Pro")
+            return {"success": True, "transformed_text": humanized, "directive": "custom"}
+        except Exception:
+            pass
+
+    return {"success": True, "transformed_text": text, "directive": "verbatim"}
 
 
 @app.get("/api/health")
