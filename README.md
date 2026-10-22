@@ -45,11 +45,20 @@ pip install -r requirements.txt
 Abre [http://localhost:5050](http://localhost:5050) o usa el dominio público [https://humannature-web.vercel.app](https://humannature-web.vercel.app).
 
 ### Opción 2: Suite de Escritorio Nativa (Sin Navegador)
+
+#### En Windows 🪟:
+```cmd
+cd desktop
+run.bat
+```
+*(O simplemente haz doble clic en `run.bat` dentro de la carpeta `desktop`).*
+
+#### En Linux 🐧:
 ```bash
 cd desktop
 ./run.sh
 ```
-Inicia la aplicación gráfica analógica con atajos globales (**F9** Iniciar/Pausar, **F8** Pausa, **F10** Detener) y doble pestaña unificada (**HumanNature Studio** y **paste, write.**).
+Inicia la aplicación gráfica con atajos globales (**F9** Iniciar/Pausar, **F8** Pausa, **F10** Detener) y doble pestaña unificada (**HumanNature Studio** y **paste, write.**).
 
 ---
 

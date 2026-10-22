@@ -34,8 +34,16 @@ Herramienta nativa ultra-rápida para escribir cualquier texto, código o mensaj
 
 ## 🚀 Inicio Rápido
 
+### En Windows 🪟:
+1. Asegúrate de tener instalado Python 3 ([python.org](https://www.python.org/downloads/)) con la casilla **"Add python.exe to PATH"** activada.
+2. Abre la carpeta `desktop` y haz doble clic en:
+   ```cmd
+   run.bat
+   ```
+   *(El script instalará automáticamente las librerías necesarias `pynput` y `pyperclip` e iniciará la aplicación).*
+
+### En Linux 🐧:
 ```bash
-cd /home/daniel-sosa/.gemini/antigravity/scratch/PasteWrite
 ./run.sh
 ```
 

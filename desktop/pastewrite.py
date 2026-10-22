@@ -220,18 +220,40 @@ class UnifiedApp:
 
         # Frameless styling on Linux/Windows
         try:
-            self.root.update_idletasks()
-            wid = self.root.winfo_id()
-            info = subprocess.check_output(['xwininfo', '-id', str(wid), '-tree'], timeout=1.0).decode()
-            client_wid = None
-            for line in info.splitlines():
-                if 'Parent window id:' in line:
-                    client_wid = line.split()[3]
-                    break
-            if client_wid:
-                subprocess.run(['xprop', '-id', client_wid, '-f', '_MOTIF_WM_HINTS', '32c', '-set', '_MOTIF_WM_HINTS', '2, 0, 0, 0, 0'], capture_output=True)
-                self.root.withdraw()
-                self.root.deiconify()
+            if sys.platform.startswith("linux"):
+                self.root.update_idletasks()
+                wid = self.root.winfo_id()
+                info = subprocess.check_output(['xwininfo', '-id', str(wid), '-tree'], timeout=1.0).decode()
+                client_wid = None
+                for line in info.splitlines():
+                    if 'Parent window id:' in line:
+                        client_wid = line.split()[3]
+                        break
+                if client_wid:
+                    subprocess.run(['xprop', '-id', client_wid, '-f', '_MOTIF_WM_HINTS', '32c', '-set', '_MOTIF_WM_HINTS', '2, 0, 0, 0, 0'], capture_output=True)
+                    self.root.withdraw()
+                    self.root.deiconify()
+                else:
+                    self.root.overrideredirect(True)
+            elif sys.platform == "win32":
+                self.root.overrideredirect(True)
+                # Keep window visible in Windows Taskbar
+                try:
+                    self.root.update_idletasks()
+                    import ctypes
+                    hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
+                    if not hwnd:
+                        hwnd = self.root.winfo_id()
+                    GWL_EXSTYLE = -20
+                    WS_EX_APPWINDOW = 0x00040000
+                    WS_EX_TOOLWINDOW = 0x00000080
+                    style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+                    style = (style & ~WS_EX_TOOLWINDOW) | WS_EX_APPWINDOW
+                    ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style)
+                    self.root.withdraw()
+                    self.root.deiconify()
+                except Exception:
+                    pass
             else:
                 self.root.overrideredirect(True)
         except Exception:
@@ -851,6 +873,14 @@ class UnifiedApp:
             self.expand_icon.config(fg="#34D399")
 
     def minimize_window(self, event=None):
+        if sys.platform == "win32":
+            try:
+                import ctypes
+                hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id()) or self.root.winfo_id()
+                ctypes.windll.user32.ShowWindow(hwnd, 6)  # SW_MINIMIZE
+                return
+            except Exception:
+                pass
         try:
             self.root.iconify()
         except Exception:
