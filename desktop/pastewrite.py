@@ -40,10 +40,21 @@ if "XAUTHORITY" not in os.environ:
         os.environ["XAUTHORITY"] = os.path.expanduser("~/.Xauthority")
 
 # Import HumanNature engine components safely
-CORE_HN_DIR = "/home/daniel-sosa/.gemini/antigravity/scratch/HumanNature"
-CORE_WEB_DIR = "/home/daniel-sosa/.gemini/antigravity/scratch/HumanNatureWeb"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+CORE_WEB_DIR = PARENT_DIR
 
-for p in (CORE_HN_DIR, CORE_WEB_DIR):
+# Determine local data cache directory portably
+CORE_HN_DIR = os.environ.get("CORE_HN_DIR", "")
+if not CORE_HN_DIR:
+    scratch_hn = "/home/daniel-sosa/.gemini/antigravity/scratch/HumanNature"
+    if os.path.exists(scratch_hn):
+        CORE_HN_DIR = scratch_hn
+    else:
+        CORE_HN_DIR = os.path.expanduser("~/.humannature_cache")
+os.makedirs(CORE_HN_DIR, exist_ok=True)
+
+for p in (CORE_WEB_DIR, SCRIPT_DIR, CORE_HN_DIR):
     if p not in sys.path and os.path.exists(p):
         sys.path.insert(0, p)
 
